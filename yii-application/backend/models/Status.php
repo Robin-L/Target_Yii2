@@ -48,6 +48,6 @@ class Status extends \yii\db\ActiveRecord
 
     public function getUsers()
     {
-        return $this->hasMany(User::className(), ['status_id'] => 'id');
+        return $this->hasMany(User::className(), ['status_id' => 'id']);
     }
 }

@@ -59,8 +59,8 @@ class User extends ActiveRecord implements IdentityInterface
             'timestamp' => [
                 'class' => 'yii\behaviors\TimestampBehavior',
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['create_at', 'update_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['update_at'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 'value' => new Expression('UNIX_TIMESTAMP()'),  // 时间戳
             ],
@@ -117,7 +117,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['id' => $id, 'status_id' => self::STATUS_ACTIVE]);
     }
 
     /**
@@ -136,7 +136,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['username' => $username, 'status_id' => self::STATUS_ACTIVE]);
     }
 
     /**
@@ -318,14 +318,14 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getUserIdLink()
     {
-        $url = Url:to(['user/update', 'id' => $this->id]);
+        $url = Url::to(['user/update', 'id' => $this->id]);
         $options = [];
         return Html::a($this->id, $url, $options);
     }
 
     public function getUserLink()
     {
-        $url = Url:to(['user/view', 'id' => $this->id]);
+        $url = Url::to(['user/view', 'id' => $this->id]);
         $options = [];
         return Html::a($this->username, $url, $options);
     }
