@@ -23,6 +23,12 @@ class ProfileController extends Controller
     public function behaviors()
     {
         return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ],
             'access' => [
                 'class' => AccessControl::className(),
                 'only'  => ['index', 'view', 'create', 'update', 'delete'],
@@ -34,10 +40,18 @@ class ProfileController extends Controller
                     ]
                 ],
             ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
+            'access2' => [
+                'class' => AccessControl::className(),
+                'only'  => ['index', 'view', 'create', 'update', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'allow'   => true,
+                        'roles'   => ['@'],
+                        'matchCallback' => function($rule, $action) {
+                            return PermissionHelpers::requireStatus('Active');
+                        }
+                    ]
                 ],
             ],
         ];
@@ -56,13 +70,6 @@ class ProfileController extends Controller
         } else {
             return $this->redirect(['create']);
         }
-        /*$searchModel = new ProfileSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);*/
     }
 
     /**
@@ -79,9 +86,6 @@ class ProfileController extends Controller
         } else {
             return $this->redirect(['create']);
         }
-        /*return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);*/
     }
 
     /**
@@ -102,14 +106,6 @@ class ProfileController extends Controller
         } else {
             return $this->render('create', ['model' => $model]);
         }
-
-        /*if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }*/
     }
 
     /**
@@ -118,20 +114,11 @@ class ProfileController extends Controller
      * @param string $id
      * @return mixed
      */
-    /*public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
-    }*/
     public function actionUpdate()
     {
+        // 免费用户升级到付费用户
+        PermissionHelpers::requireUpgradeTo('Paid');
+
         if ($model = Profile::find()->where(['user_id' => Yii::$app->user->identity->id])->one()) {
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
                 return $this->redirect(['view']);
@@ -148,12 +135,6 @@ class ProfileController extends Controller
      * @param string $id
      * @return mixed
      */
-   /* public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
-    }*/
     public function actionDelete()
     {
         $model = Profile::find()->where(['user_id' => Yii::$app->user->identity->id])->one();

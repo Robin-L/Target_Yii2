@@ -1,17 +1,17 @@
 <?php 
 namespace common\models;
 
-use common\models\ValueHelpers;
 use yii;
 use yii\web\Controller;
 use yii\helpers\Url;
+use common\models\ValueHelpers;
 
 class PermissionHelpers
 {
 	public static function requireUpgradeTo($user_type_name)
 	{
 		if (!ValueHelpers::userTypeMatch($user_type_name)) {
-			return Yii::$app->getResponse()->redirect(Url::to(['upgrate/index']));
+			return Yii::$app->getResponse()->redirect(Url::to(['upgrade/index']));
 		}
 	}
 
@@ -25,7 +25,7 @@ class PermissionHelpers
 		return ValueHelpers::roleMatch($role_name);
 	}
 
-	public static function requrieMinimumRole($role_name, $userId=null)
+	public static function requireMinimumRole($role_name, $userId=null)
 	{
 		if (ValueHelpers::isRoleNameValid($role_name)) {
 			if ($userId == null) {

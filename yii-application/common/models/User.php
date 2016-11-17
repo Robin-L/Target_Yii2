@@ -78,7 +78,7 @@ class User extends ActiveRecord implements IdentityInterface
         ];*/
         return [
             ['status_id', 'default', 'value' => self::STATUS_ACTIVE],
-            [['status'], 'in', 'range' => array_keys($this->getStatusList())],
+            [['status_id'], 'in', 'range' => array_keys($this->getStatusList())],
 
             ['role_id', 'default', 'value' => 1],
             [['role_id'], 'in', 'range' => array_keys($this->getRoleList())],
@@ -106,8 +106,8 @@ class User extends ActiveRecord implements IdentityInterface
             'profileLink'   => Yii::t('app', 'Profile'), 
             'userLink'      => Yii::t('app', 'User'), 
             'username'      => Yii::t('app', 'User'), 
-            'userTypeName'  => Yii::t('app', 'User Type'), 
-            'userTypeId'    => Yii::t('app', 'User Type'), 
+            'userTypeName'  => Yii::t('app', 'UserType'), 
+            'userTypeId'    => Yii::t('app', 'UserType'), 
             'userIdLink'    => Yii::t('app', 'ID'),
         ];
     }
@@ -290,7 +290,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getUserTypeName()
     {
-        return $this->UserType ? $this->UserType->user_type_name : '- no user type -';
+        return $this->userType ? $this->userType->user_type_name : '- no user type -';
     }
 
     public static function getUserTypeList()
@@ -301,7 +301,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getUserTypeId()
     {
-        return $this->UserType ? $this->UserType->id : 'none';
+        return $this->userType ? $this->userType->id : 'none';
     }
 
     public function getProfileId()

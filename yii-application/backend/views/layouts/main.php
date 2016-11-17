@@ -9,6 +9,7 @@ use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use common\widgets\Alert;
+use common\models\PermissionHelpers;
 
 AppAsset::register($this);
 ?>
@@ -27,16 +28,37 @@ AppAsset::register($this);
 
 <div class="wrap">
     <?php
-    NavBar::begin([
-        'brandLabel' => 'My Company',
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => [
-            'class' => 'navbar-inverse navbar-fixed-top',
-        ],
-    ]);
-    $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-    ];
+
+    if(!Yii::$app->user->isGuest) {
+        $is_admin = PermissionHelpers::requireMinimumRole('Admin');
+        NavBar::begin([
+            'brandLabel' => 'Target Yii2 Admin',
+            'brandUrl'   => Yii::$app->homeUrl,
+            'options'    => [
+                'class' => 'navbar-inverse navbar-fixed-top',
+            ],
+        ]);
+    } else {
+        NavBar::begin([
+            'brandLabel' => 'Target Yii2',
+            'brandUrl' => Yii::$app->homeUrl,
+            'options' => [
+                'class' => 'navbar-inverse navbar-fixed-top',
+            ],
+        ]);
+        $menuItems = [
+            ['label' => 'Home', 'url' => ['/site/index']],
+        ];
+    }
+
+    if (!Yii::$app->user->isGuest && $is_admin) {
+        $menuItems[] = ['label' => 'Users', 'url' => ['user/index']];
+        $menuItems[] = ['label' => 'Profile', 'url' => ['profile/index']];
+        $menuItems[] = ['label' => 'Roles', 'url' => ['role/index']];
+        $menuItems[] = ['label' => 'Users Types', 'url' => ['user-type/index']];
+        $menuItems[] = ['label' => 'Statuses', 'url' => ['status/index']];
+    }
+
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
@@ -67,7 +89,7 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+        <p class="pull-left">&copy; Target Yii2 <?= date('Y') ?></p>
 
         <p class="pull-right"><?= Yii::powered() ?></p>
     </div>
