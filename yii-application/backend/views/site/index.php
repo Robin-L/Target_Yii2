@@ -1,51 +1,110 @@
 <?php
 
 /* @var $this yii\web\View */
+use yii\helpers\Html;
+use common\models\PermissionHelpers;
 
-$this->title = 'My Yii Application';
+$this->title = 'Admin Target Yii2';
+$is_admin = PermissionHelpers::requireMinimumRole('Admin');
 ?>
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Congratulations!</h1>
+        <h1>Welcome to Admin!</h1>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
+        <p class="lead">Now you can manage users, roles, and more with our easy tools.</p>
 
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
+        <p>
+        <?php  
+            if (!Yii::$app->user->isGuest && $is_admin) {
+                echo Html::a('Manage Users', ['user/index'], ['class' => 'btn btn-success']);
+            }
+        ?>
+        </p>
     </div>
 
     <div class="body-content">
 
         <div class="row">
             <div class="col-lg-4">
-                <h2>Heading</h2>
+                <h2>Users</h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                <p>This is the place to manage users. You can edit status and roles from here. The UI is easy to use and intuitive, just click the link below to get started.</p>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
+                <p>
+                <?php  
+                    if (!Yii::$app->user->isGuest && $is_admin) {
+                        echo Html::a('Manage Users', ['user/index'], ['class' => 'btn btn-default']);
+                    }
+                ?>
+                </p>
             </div>
             <div class="col-lg-4">
-                <h2>Heading</h2>
+                <h2>Roles</h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                <p>This is where you manage Roles.</p>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
+                <p>
+                <?php  
+                    if (!Yii::$app->user->isGuest && $is_admin) {
+                        echo Html::a('Manage Roles', ['role/index'], ['class' => 'btn btn-default']);
+                    }
+                ?>
+                </p>
             </div>
             <div class="col-lg-4">
-                <h2>Heading</h2>
+                <h2>Profiles</h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                <p>Need to review Profiles?</p>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
+                <p>
+                <?php  
+                    if (!Yii::$app->user->isGuest && $is_admin) {
+                        echo Html::a('Manage Profiles', ['profile/index'], ['class' => 'btn btn-default']);
+                    }
+                ?>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <h2>User Types</h2>
+                <p>
+                    This is the place to manage user types.
+                </p>
+                <p>
+                    <?php  
+                        if (!Yii::$app->user->isGuest && $is_admin) {
+                            echo Html::a('Manage User Types', ['user-type/index'], ['class' => 'btn btn-default']);
+                        }
+                    ?>
+                </p>
+            </div>
+            <div class="col-lg-4">
+                <h2>Statuses</h2>
+                <p>
+                    This is where you manage Statuses.
+                </p>
+                <p>
+                    <?php  
+                        if (!Yii::$app->user->isGuest && $is_admin) {
+                            echo Html::a('Manage Statuses', ['status/index'], ['class' => 'btn btn-default']);
+                        }
+                    ?>
+                </p>
+            </div>
+            <div class="col-lg-4">
+                <h2>Placeholder</h2>
+                <p>
+                    Need ro review Profiles?
+                </p>
+                <p>
+                    <?php  
+                        if (!Yii::$app->user->isGuest && $is_admin) {
+                            echo Html::a('Manage Profiles', ['profile/index'], ['class' => 'btn btn-default']);
+                        }
+                    ?>
+                </p>
             </div>
         </div>
 
