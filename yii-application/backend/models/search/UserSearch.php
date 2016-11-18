@@ -18,6 +18,7 @@ class UserSearch extends User
     public $user_type_id;
     public $statusName;
     public $profileId;
+    public $modelAttribute;
     /**
      * @inheritdoc
      */
