@@ -15,6 +15,7 @@ class ProfileSearch extends Profile
     public $genderName;
     public $gender_id;
     public $userId;
+    public $modelAttribute;
 
     /**
      * @inheritdoc

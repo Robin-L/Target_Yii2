@@ -1,25 +1,42 @@
-<?php 
+<?php
 
 namespace frontend\controllers;
 
-use Yii;
+use yii;
+use backend\models\Faq;
+use backend\models\search\FaqSearch;
 use yii\web\Controller;
-use frontend\models\EntryForm;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
+use yii\data\Pagination;
 
-class TestController extends Controller
+class TestController extends \yii\web\Controller
 {
-	public function actionSay($message = 'Hello')
+	public function behaviors()
 	{
-		return $this->render('say', ['message' => $message]);
+		return [
+			'verbs' => [
+				'class' => VerbFilter::className(),
+				'actions' => [
+					'delete' => ['post'],
+				],
+			],
+		];
 	}
 
-	public function actionEntry()
-	{
-		$model = new EntryForm();
-		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-			return $this->render('entry-confirm', ['model' => $model]);
-		} else {
-			return $this->render('entry', ['model' => $model]);
-		}
-	}
+    public function actionIndex()
+    {
+    	$query = Faq::find()->where(['faq_is_featured' => 1]);
+    	$query->orderBy(['faq_weight' => SORT_ASC]);
+    	$countQuery = clone $query;
+    	$pages = new Pagination(['defaultPageSize' => 3, 'totalCount' => $countQuery->count()]);
+    	$models = $query->offset($pages->offset)->limit($pages->limit)->all();
+    	return $this->render('index', [
+    		'models' => $models,
+    		'pages'  => $pages,
+    	]);
+    	// Yii::$app->mycomponent->blastOff();
+        // return $this->render('index');
+    }
+
 }
