@@ -11,6 +11,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\PermissionHelpers;
 use common\models\User;
+use yii\helpers\Url;
 
 /**
  * FaqController implements the CRUD actions for Faq model.
@@ -83,7 +84,9 @@ class FaqController extends Controller
         $model = new Faq();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            $url = Url::toRoute('faq/' . $model->id . '/' . $model->slug);
+            return $this->redirect($url);
+            // return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -102,7 +105,11 @@ class FaqController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+
+            $url = Url::toRoute('faq/'.$model->id.'/'.$model->slug);
+            return $this->redirect($url);
+            
+            // return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,

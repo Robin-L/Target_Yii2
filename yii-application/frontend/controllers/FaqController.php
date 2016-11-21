@@ -34,11 +34,18 @@ class FaqController extends Controller
 			]);
 	}
 
-	public function actionView($id)
+	public function actionView($id, $slug=null)
 	{
-		return $this->render('view', [
-			'model' => $this->findModel($id),
-		]);
+		$model = $this->findModel($id);
+		if ($slug == $model->slug) {
+			return $this->render('view', [
+				'model' => $model,
+				'slug'  => $model->slug
+			]);
+		} else {
+			throw new NotFoundHttpException('The requested Faq does not exist.');
+		}
+		
 	}
 
 	protected function findModel($id)

@@ -80,5 +80,5 @@ $this->title = 'Target Yii2';
         </div>
         
     </div>
-    <?= FaqWidget::widget(['settings' => ['pageSize' => 3, 'featuredOnly' => true]]) ?>
+    <?= FaqWidget::widget(['settings' => ['pageSize' => 3, 'featuredOnly' => true, 'heading' => 'Featured FAQs']]) ?>
 </div>
