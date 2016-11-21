@@ -10,6 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\PermissionHelpers;
+use common\models\User;
 
 /**
  * FaqController implements the CRUD actions for Faq model.

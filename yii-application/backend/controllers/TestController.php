@@ -1,6 +1,6 @@
 <?php
 
-namespace frontend\controllers;
+namespace backend\controllers;
 
 use yii;
 use backend\models\Faq;
@@ -31,12 +31,18 @@ class TestController extends \yii\web\Controller
     	$countQuery = clone $query;
     	$pages = new Pagination(['defaultPageSize' => 3, 'totalCount' => $countQuery->count()]);
     	$models = $query->offset($pages->offset)->limit($pages->limit)->all();
+    	
     	return $this->render('index', [
     		'models' => $models,
-    		'pages'  => $pages,
+    		'pages'	 => $pages,
     	]);
-    	// Yii::$app->mycomponent->blastOff();
-        // return $this->render('index');
+    	/*$searchModel = new FaqSearch();
+    	$provider = $searchModel->featuredProvider();
+
+        return $this->render('index', [
+        	'searchModel' => $searchModel,
+        	'provider' => $provider,
+        ]);*/
     }
 
 }

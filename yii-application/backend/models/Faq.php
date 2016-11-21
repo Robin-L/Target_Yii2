@@ -139,7 +139,7 @@ class Faq extends \yii\db\ActiveRecord
 
     public function getUpdatedByUsername()
     {
-        return $this->updatedByUser ? $this->updatedByUser : '- no user -';
+        return $this->updatedByUser ? $this->updatedByUser->username : '- no user -';
     }
 
 }

@@ -4,6 +4,7 @@ use \yii\bootstrap\Modal;
 use \yii\bootstrap\Collapse;
 use \yii\bootstrap\Alert;
 use yii\helpers\Html;
+use components\FaqWidget;
 
 $this->title = 'Target Yii2';
 ?>
@@ -79,4 +80,5 @@ $this->title = 'Target Yii2';
         </div>
         
     </div>
+    <?= FaqWidget::widget(['settings' => ['pageSize' => 3, 'featuredOnly' => true]]) ?>
 </div>

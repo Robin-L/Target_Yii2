@@ -9,6 +9,7 @@ use backend\models\Faq;
 use yii\db\ActiveQuery;
 use yii\db\Query;
 use yii\data\ArrayDataProvider;
+use yii\data\SqlDataProvider;
 
 /**
  * FaqSearch represents the model behind the search form about `backend\models\Faq`.
@@ -150,5 +151,39 @@ class FaqSearch extends Faq
             ],
         ]);
         return $provider;
+    }
+
+    public function featuredProvider()
+    {
+        $count = Yii::$app->db->createCommand('SELECT COUNT(*) FROM `faq` WHERE `faq_is_featured` =:faq_is_featured', [':faq_is_featured' => 1])->queryScalar();
+
+        $featuredProvider = new SqlDataProvider([
+            'sql' => 'SELECT * FROM `faq` WHERE `faq_is_featured`=:faq_is_featured ORDER BY `faq_weight` ASC',
+            'params' => [':faq_is_featured' => 1],
+            'totalCount' => $count,
+            'sort' => [
+                'attributes' => ['id', 'faq_question'],
+            ],
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+
+        return $featuredProvider;
+
+        /*$query = new Query;
+        $featuredProvider = new ArrayDataProvider([
+            'allModels' => $query->from('faq')->where(['faq_is_featured' => 1])->all(),
+            'sort' => [
+                'defaultOrder' => [
+                    'faq_weight' => SORT_ASC,
+                ],
+                'attributes' => ['faq_question', 'faq_answer', 'faq_weight'],
+            ],
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+        return $featuredProvider;*/
     }
 }
