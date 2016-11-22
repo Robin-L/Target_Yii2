@@ -45,6 +45,17 @@ AppAsset::register($this);
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+        $menuItems[] = ['label'=> 'Social Sync', 
+                        'items' => [
+                            [
+                                'label' => '<i class="fa fa-facebook"></i> Fackbook',
+                                'url' => ['site/auth', 'authclient' => 'facebook']
+                            ],
+                            [
+                                'label' => '<i class="fa fa-github"></i> Github',
+                                'url' => ['site/auth', 'authclient' => 'github']
+                            ],
+                        ]];
     } else {
         $menuItems[] = ['label' => 'Profile', 'url' => ['/profile/view']];
         $menuItems[] = '<li>'
@@ -59,6 +70,7 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => $menuItems,
+        'encodeLabels' => false, // "<i>"标签不特殊处理
     ]);
     NavBar::end();
     ?>

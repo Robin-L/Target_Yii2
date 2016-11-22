@@ -18,6 +18,10 @@ use common\models\MailCall;
  */
 class SiteController extends Controller
 {
+    private $attributes = [];
+    private $username;
+    private $source;
+    private $socialUser;
     /**
      * @inheritdoc
      */
@@ -37,6 +41,11 @@ class SiteController extends Controller
                         'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['captcha'],
+                        'allow' => true,
+                        'roles' => ['?', '@'],
                     ],
                 ],
             ],
@@ -62,6 +71,10 @@ class SiteController extends Controller
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
+            'auth' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'onAuthSuccess'],
+            ],
         ];
     }
 
@@ -80,20 +93,25 @@ class SiteController extends Controller
      *
      * @return mixed
      */
-    public function actionLogin()
+    public function actionLogin($viaSocial = false)
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+        if ($viaSocial) {
+            Yii::$app->user->login($this->socialUser);
         } else {
-            return $this->render('login', [
-                'model' => $model,
-            ]);
+            $model = new LoginForm();
+            if ($model->load(Yii::$app->request->post()) && $model->login()) {
+                return $this->goBack();
+            } else {
+                return $this->render('login', [
+                    'model' => $model,
+                ]);
+            }
         }
+
     }
 
     /**
@@ -146,22 +164,51 @@ class SiteController extends Controller
      *
      * @return mixed
      */
-    public function actionSignup()
+    public function actionSignup($viaSocial = false)
     {
-        $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post())) {
-            if ($user = $model->signup()) {
-                if (Yii::$app->getUser()->login($user)) {
-                    MailCall::onMailableAction('signup', 'site');
-                    
-                    return $this->goHome();
+        if ($viaSocial) {
+            if ($this->emailPresent() && $this->emailAlreadyInUse()) {
+                return Yii::$app->getSession()->setFlash('error', [Yii::t('app', "User with the same email as in {source} account already exists but isn't synced. Login with username and password and click the {source} sync link to sync accounts.", ['source' => $this->source]),
+                    ]);
+            } else {
+                $user = $this->createUser();
+                $transaction = $user->getDb()->beginTransaction();
+                if ($user->save()) {
+                    $auth = $this->createAuth($user);
+                    if ($auth->save()) {
+                        $transaction->commit();
+                        Yii::$app->user->login($user);
+                        MailCall::onMailableAction('signup', 'site');
+                    } else {
+                        return Yii::$app->getSession()->setFlash('error', [Yii::t('app', "We were unable to complete the process and sync {source}.", ['source' => $this->source]),
+                            ]);
+                    }
+                } else {
+                    if (User::find()->where(['username' => $this->username])) {
+                        return Yii::$app->getSession()->setFlash('error', [Yii::t('app', "Username already taken, please signup through the site Signup form and use a different username, Thanks."),
+                            ]);
+                    } else {
+                        return Yii::$app->getSession()->setFlash('error', [Yii::t('app', "We were unable to complete the process and sync {source}.", ['source' => $this->source]),
+                            ]);
+                    }
                 }
             }
-        }
+        } else {
+            $model = new SignupForm();
+            if ($model->load(Yii::$app->request->post())) {
+                if ($user = $model->signup()) {
+                    if (Yii::$app->getUser()->login($user)) {
+                        MailCall::onMailableAction('signup', 'site');
+                        
+                        return $this->goHome();
+                    }
+                }
+            }
 
-        return $this->render('signup', [
-            'model' => $model,
-        ]);
+            return $this->render('signup', [
+                'model' => $model,
+            ]);
+        }
     }
 
     /**
@@ -211,5 +258,184 @@ class SiteController extends Controller
         return $this->render('resetPassword', [
             'model' => $model,
         ]);
+    }
+
+    public function onAuthSuccess($client)
+    {
+        $this->attributes = $client->getUserAttributes();
+
+        $this->source = $client->getId();
+
+        $this->formatProviderResponse($this->source);
+
+        if (!$this->emailPresent()) {
+            return Yii::$app->getSession()->setFlash('error', [
+                Yii::t('app', "unable to finish, {client} did not provide us with an email. Please check your settings on {client}.", ['client' => $client->getTitle()]),
+            ]);
+        }
+
+        $existingAuth = $this->findExistingAuth();
+
+        if (Yii::$app->user->isGuest) {
+            if ($existingAuth) {
+                $this->socialUser = $existingAuth->user;
+                $viaSocial = true;
+                $this->actionLogin($viaSocial);
+            } else {
+                $viaSocial = true;
+                $this->actionSignup($viaSocial);
+            }
+        } else {
+            if (!$existingAuth && $this->matchEmail()) {
+                $auth = $this->createAuth(Yii::$app->user);
+                $auth->save();
+                Yii::$app->getSession()->setFlash('success', [Yii::t('app', "Your {source} account is successfully synced.", ['source' => $this->source]),
+                    ]);
+            } else {
+                if (!$this->matchEmail()) {
+                    Yii::$app->getSession()->setFlash('error', [Yii::t('app', "Your {source} account could not be synced.", ['source' => $this->source]),
+                    ]);
+                }
+            }
+        }
+
+
+        /*$auth = Auth::find()->where(['source' => $this->source, 'source_id' => $this->attributes['id'],])->one();
+        if (Yii::$app->user->isGuest) {
+            if ($auth) {
+                $user = $auth->user;
+                Yii::$app->user->login($user);
+            } else {
+                if (isset($this->attributes['email']) && User::find()->where(['email' => $this->attributes['email']])->exists()) {
+                    return Yii::$app->getSession()->setFlash('error', [
+                            Yii::t('app', "User with the same email as in {client} account already exists but isn't synced. Login with username and password and click the {client} sync link to sync accounts.", ['client' => $client->getTitle()]),
+                        ]);
+                } else {
+                    $password = Yii::$app->security->generateRandomString(6);
+                    $user = new User([
+                            'username'  => $this->attributes[$this->username],
+                            'email'     => $this->attributes['email'],
+                            'password'  => $password,
+                        ]);
+                    $user->generateAuthKey();
+                    $transaction = $user->getDb()->beginTransaction();
+                    if ($user->save()) {
+                        $auth = new Auth([
+                                'user_id'   => $user->id,
+                                'source'    => $client->getId(),
+                                'source_id' => (string)$this->attributes['id'],
+                            ]);
+
+                        if ($auth->save()) {
+                            $transaction->commit();
+                            Yii::$app->user->login($user);
+                            MailCall::onMailableAction('signup', 'site');
+                        } else {
+                            return Yii::$app->getSession()->setFlash('error', [Yii::t('app', "We were unable to complete the process and sync {client}.", ['client' => $client->getTitle()]),
+                                ]);
+                        }
+                    } else {
+                        return Yii::$app->getSession()->setFlash('error', [Yii::t('app', "We were unable to complete the process and sync {client}.",['client' => $client->getTitle()]),
+                            ]);
+                    }
+                }
+            }
+        } else {
+            if (!$auth && $this->attributes['email'] == Yii::$app->user->identity->email) {
+                $auth = new Auth([
+                        'user_id' => Yii::$app->user->id,
+                        'source'  => $this->source,
+                        'source_id' => (string)$this->attributes['id'],
+                    ]);
+                $auth->save();
+                Yii::$app->getSession()->setFlash('success', [Yii::t('app', "Your {client} account is successfully synced.", ['client' => $client->getTitle()]),
+                    ]);
+            } else {
+                if ($this->attributes['email'] != Yii::$app->user->identity->email) {
+                    Yii::$app->getSession()->setFlash('error', [Yii::t('app', "Your {client} account could not be synced.", ['client' => $client->getTitle()]),
+                        ]);
+                } else {
+                    Yii::$app->getSession()->setFlash('success', [Yii::t('app', "Your {client} account is already synced.", ['client' => $client->getTitle()]),
+                        ]);
+                }
+            }
+        }*/
+    }
+
+    private function createUser()
+    {
+        $password = Yii::$app->security->generateRandomString(6);
+        $user = new User([
+                'username' => $this->attributes[$this->username],
+                'email' => $this->attributes['email'],
+                'password' => $password,
+            ]);
+        $user->generateAuthKey();
+        return $user;
+    }
+
+    private function createAuth($user)
+    {
+        $auth = new Auth([
+                'user_id' => $user->id,
+                'source' => $this->source,
+                'source_id' => (string)$this->attributes['id'],
+            ]);
+        return $auth;
+    }
+
+    private function findExistingAuth()
+    {
+        $auth = Auth::find()->where([
+                'source' => $this->source,
+                'source_id' => $this->attributes['id'],
+            ])->one();
+        return $auth;
+    }
+
+    private function emailPresent()
+    {
+        return isset($this->attributes['email']) ? true : false;
+    }
+
+    private function matchEmail()
+    {
+        return $this->attributes['email'] == Yii::$app->user->identity->email ? true : false;
+    }
+
+    private function formatProviderResponse($source)
+    {
+        switch ($source) {
+            case 'facebook':
+                $this->username = 'name';
+                break;
+            case 'github': 
+                $this->username = 'login';
+                break;
+            case 'twitter':
+                $this->username = 'fullName';
+                $fullName = $this->attributes['first_name'].' '.$this->attributes['last_name'];
+                $this->attributes['fullName'] = $fullName;
+                break;
+            case 'google':
+                $this->username = 'displayName';
+                $emails = $this->attributes['emails'];
+                foreach ($emails as $email) {
+                    foreach ($email as $k => $v) {
+                        if ($k == 'value') {
+                            $this->attributes['email'] = $v;
+                        }
+                    }
+                }
+                break;
+            default:
+                $this->username = 'name';
+                break;
+        }
+    }
+
+    private function emailAlreadyInUse()
+    {
+        return User::find()->where(['email' => $this->attributes['email']])->exists() ? true : false;
     }
 }

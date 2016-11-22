@@ -5,20 +5,39 @@ use \yii\bootstrap\Collapse;
 use \yii\bootstrap\Alert;
 use yii\helpers\Html;
 use components\FaqWidget;
+use kartik\social\FacebookPlugin;
 
 $this->title = 'Target Yii2';
 ?>
 <div class="site-index">
 
     <div class="jumbotron">
-
-        <?php if(Yii::$app->user->isGuest) {
-            echo Html::a('Get Started Today', ['site/signup'], ['class' => 'btn btn-lg btn-success']);
-            } ?>
-        <p>
+        <?php  
+            if (Yii::$app->user->isGuest) {
+                echo yii\authclient\widgets\AuthChoice::widget([
+                    'baseAuthUrl' => ['site/auth'],
+                    'popupMode' => false,
+                ]);
+            }
+        ?>
+        <h1>Yii 2 Start</h1>
+        <br>
+        <?php 
+            if(Yii::$app->user->isGuest) {
+                // echo Html::a('Get Started Today', ['site/signup'], ['class' => 'btn btn-lg btn-success']);
+                echo '<h4>'.Html::a(
+                                    '<i class="fa fa-facebook"</i>Sign Up or Sign In',
+                                    ['auth', 'authclient' => 'facebook'],
+                                    ['class' => 'btn btn-primary']
+                                ).'</h4>';
+            } else {
+                echo '<p class="lead">Use this Yii 2 Template to start Project.</p>';
+            }
+        ?>
+        <!-- <p>
             <h1>Target Yii2 <i class="fa fa-plug"></i></h1>
             <p class="lead">Use this Yii 2 Template to start Project.</p>
-        </p>
+        </p> -->
     </div>
 
     <?php 
