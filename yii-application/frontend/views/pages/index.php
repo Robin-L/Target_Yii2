@@ -15,7 +15,17 @@ $this->title = 'Target Yii2';
     <div class="jumbotron">
 
         <div>
-            <?= CarouselWidget::widget(['settings' => ['height' => '300px', 'width' => '700px', 'autoplay' => true]]) ?>
+            <?= CarouselWidget::widget([
+                'settings' => [
+                    'height' => $carouselSettings['image_height'], 
+                    'width' => $carouselSettings['image_width'], 
+                    'autoplay' => $carouselSettings['carousel_autoplay'], 
+                    'show_indicators' => $carouselSettings['show_indicators'], 
+                    'show_captions' => $carouselSettings['show_captions'], 
+                    'show_controls' => $carouselSettings['show_controls'], 
+                    'show_caption_title' => $carouselSettings['show_controls'], 
+                ]
+            ]) ?>
         </div>
 
         <?php  

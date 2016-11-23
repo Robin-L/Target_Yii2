@@ -3,20 +3,17 @@
 namespace backend\controllers;
 
 use Yii;
-use backend\models\Faq;
-use backend\models\search\FaqSearch;
+use backend\models\CarouselSettings;
+use backend\models\search\CarouselSettingsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 use common\models\PermissionHelpers;
-use common\models\User;
-use yii\helpers\Url;
 
 /**
- * FaqController implements the CRUD actions for Faq model.
+ * CarouselSettingsController implements the CRUD actions for CarouselSettings model.
  */
-class FaqController extends Controller
+class CarouselSettingsController extends Controller
 {
     /**
      * @inheritdoc
@@ -25,14 +22,14 @@ class FaqController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => \yii\filters\AccessControl::className(),
                 'only'  => ['index', 'view', 'create', 'update', 'delete'],
                 'rules' => [
                     [
                         'actions' => ['index', 'view', 'create', 'update', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
-                        'matchCallback' => function($rule, $action) {
+                        'matchCallback' => function ($rule, $action) {
                             return PermissionHelpers::requireMinimumRole('Admin') && PermissionHelpers::requireStatus('Active');
                         }
                     ]
@@ -48,12 +45,12 @@ class FaqController extends Controller
     }
 
     /**
-     * Lists all Faq models.
+     * Lists all CarouselSettings models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new FaqSearch();
+        $searchModel = new CarouselSettingsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -63,7 +60,7 @@ class FaqController extends Controller
     }
 
     /**
-     * Displays a single Faq model.
+     * Displays a single CarouselSettings model.
      * @param integer $id
      * @return mixed
      */
@@ -75,18 +72,16 @@ class FaqController extends Controller
     }
 
     /**
-     * Creates a new Faq model.
+     * Creates a new CarouselSettings model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Faq();
+        $model = new CarouselSettings();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $url = Url::toRoute('faq/' . $model->id . '/' . $model->slug);
-            return $this->redirect($url);
-            // return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -95,7 +90,7 @@ class FaqController extends Controller
     }
 
     /**
-     * Updates an existing Faq model.
+     * Updates an existing CarouselSettings model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -105,11 +100,7 @@ class FaqController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
-            $url = Url::toRoute('faq/'.$model->id.'/'.$model->slug);
-            return $this->redirect($url);
-            
-            // return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -118,7 +109,7 @@ class FaqController extends Controller
     }
 
     /**
-     * Deletes an existing Faq model.
+     * Deletes an existing CarouselSettings model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -131,15 +122,15 @@ class FaqController extends Controller
     }
 
     /**
-     * Finds the Faq model based on its primary key value.
+     * Finds the CarouselSettings model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Faq the loaded model
+     * @return CarouselSettings the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Faq::findOne($id)) !== null) {
+        if (($model = CarouselSettings::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

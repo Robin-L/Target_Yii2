@@ -11,6 +11,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use common\models\User;
+use yii\behaviors\SluggableBehavior;
 
 /**
  * This is the model class for table "faq".
@@ -51,6 +52,10 @@ class Faq extends \yii\db\ActiveRecord
                 'class' => BlameableBehavior::className(),
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => 'updated_by',
+            ],
+            'sluggable' => [
+                'class' => SluggableBehavior::className(),
+                'attribute' => 'faq_question',
             ],
         ];
     }
@@ -142,4 +147,9 @@ class Faq extends \yii\db\ActiveRecord
         return $this->updatedByUser ? $this->updatedByUser->username : '- no user -';
     }
 
+    public function getFaqRating($id)
+    {
+        $rating = new FaqRating;
+        return $rating->getAverageRating($id) ? $rating->getAverageRating($id) : 'Not Rated';
+    }
 }

@@ -56,4 +56,16 @@ class ValueHelpers
 		$userHasUserTypeName = Yii::$app->user->identity->userType->user_type_name;
 		return $userHasUserTypeName == $user_type_name ? true : false;
 	}
+
+	public static function getRoleId($role_name)
+	{
+		$role = Role::find('id')->where(['role_name' => $role_name])->one();
+		return isset($role->id) ? $role->id : false;
+	}
+
+	public static function getUserTypeId($user_type_name)
+	{
+		$userType = UserType::find('id')->where(['user_type_name' => $user_type_name])->one();
+		return isset($userType->id) ? $userType->id : false;
+	}
 }
