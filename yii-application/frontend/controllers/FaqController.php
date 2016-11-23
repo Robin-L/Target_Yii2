@@ -8,6 +8,7 @@ use backend\models\search\FaqSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use backend\models\FaqRating;
 
 class FaqController extends Controller
 {
@@ -37,10 +38,14 @@ class FaqController extends Controller
 	public function actionView($id, $slug=null)
 	{
 		$model = $this->findModel($id);
+
+		$faqRating = new FaqRating();
+
 		if ($slug == $model->slug) {
 			return $this->render('view', [
 				'model' => $model,
-				'slug'  => $model->slug
+				'slug'  => $model->slug,
+				'faqRating' => $faqRating,
 			]);
 		} else {
 			throw new NotFoundHttpException('The requested Faq does not exist.');

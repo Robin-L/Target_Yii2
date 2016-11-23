@@ -21,7 +21,8 @@
         "kartik-v/yii2-social": "dev-master",
         "yiisoft/yii2-authclient": "*",
         "fortawesome/font-awesome": "*",
-        "yiisoft/yii2-imagine": "~2.0.0"
+        "yiisoft/yii2-imagine": "~2.0.0",
+        "kartik-v/yii2-widgets": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

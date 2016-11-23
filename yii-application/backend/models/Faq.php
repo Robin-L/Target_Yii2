@@ -147,4 +147,9 @@ class Faq extends \yii\db\ActiveRecord
         return $this->updatedByUser ? $this->updatedByUser->username : '- no user -';
     }
 
+    public function getFaqRating($id)
+    {
+        $rating = new FaqRating;
+        return $rating->getAverageRating($id) ? $rating->getAverageRating($id) : 'Not Rated';
+    }
 }
