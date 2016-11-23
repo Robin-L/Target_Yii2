@@ -49,6 +49,12 @@ return [
                 '<controller:\w+>/<id:\d+>/<slug:[A-Za-z0-9-_.]+>' => '<controller>/view',
             ],
         ],
+        'urlManagerBackend' => [
+            'class' => 'yii\web\urlManager',
+            'baseUrl' => 'http://b_yii2.omz.cn',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+        ],
     ],
     'params' => $params,
 ];

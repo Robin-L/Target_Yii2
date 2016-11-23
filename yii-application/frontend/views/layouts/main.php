@@ -10,6 +10,7 @@ use yii\widgets\Breadcrumbs;
 use frontend\assets\AppAsset;
 use common\widgets\Alert;
 // use frontend\assets\FontAwesomeAsset;
+use backend\models\search\CarouselSettingsSearch;
 
 AppAsset::register($this);
 // FontAwesomeAsset::register($this);
@@ -22,6 +23,20 @@ AppAsset::register($this);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
+
+    <?php  
+        $carouselSettings = CarouselSettingsSearch::getCarouselSettings('Front Page');
+        if ($carouselSettings['caption_font_size']) {
+            echo '<style>.carousel-caption{';
+
+            if ($carouselSettings['show_caption_background']) {
+                echo 'background:rgba(0, 0, 0, 0.5);';
+            }
+
+            echo 'font-size:'.$carouselSettings['caption_font_size'] . ';}</style>';
+        }
+    ?>
+
     <?php $this->head() ?>
 </head>
 <body>
@@ -37,10 +52,10 @@ AppAsset::register($this);
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-        ['label' => 'About', 'url' => ['/site/about']],
+        // ['label' => 'Home', 'url' => ['/site/index']],
+        ['label' => 'About', 'url' => ['/pages/about']],
         ['label' => 'FAQs', 'url' => ['/faq/index']],
-        ['label' => 'Contact', 'url' => ['/site/contact']],
+        ['label' => 'Contact', 'url' => ['/pages/contact']],
     ];
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];

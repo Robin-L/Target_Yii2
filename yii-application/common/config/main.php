@@ -11,6 +11,9 @@ return [
         'faqwidget'	=> [
         	'class' => 'components\FaqWidget',
         ],
+        'carouselwidget' => [
+            'class' => 'components\CarouselWidget',
+        ],
         'authClientCollection' => [
             'class' => 'yii\authclient\Collection',
             'clients' => [
